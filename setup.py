@@ -18,6 +18,7 @@ setup(
             'delta_pose_pub_node = pandapy_ctrl.delta_pose_pub_node:main',
             'pose_subscriber_node = pandapy_ctrl.pose_subscriber_node:main',
             'pose_sub_pandapy = pandapy_ctrl.pose_sub_pandapy:main',
+            'pose_sub_pandapy_IK = pandapy_ctrl.pose_sub_pandapy_IK:main',
         ],
     },
 )
