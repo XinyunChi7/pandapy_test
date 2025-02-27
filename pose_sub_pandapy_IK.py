@@ -4,6 +4,7 @@ from geometry_msgs.msg import Pose
 from std_msgs.msg import Float64MultiArray
 import numpy as np
 import transforms3d as t3d
+
 hostname = '192.168.1.11'
 username = 'panda'
 password = 'panda1234'
@@ -21,8 +22,9 @@ gripper = libfranka.Gripper(hostname)
 
 
 '''
-Move_to_pose()
+Move_to_joint_position()
 '''
+
 
 class PoseSubscriberNode(Node):
     def __init__(self):
@@ -47,23 +49,37 @@ class PoseSubscriberNode(Node):
 
     def pose_callback(self, msg: Pose):
         # Extract position and orientation (quaternion) from the Pose message
+
         ori_q = panda.get_orientation() # (quaternion) 
-        
         pos = panda.get_position() 
         
         if self.moved == False:
             self.moved = True
-                    # Extract the position (x, y, z)
             self.get_logger().info(f"message pos {msg.position}, ori {msg.orientation}")
+
             delta_pos = np.array([msg.position.x, msg.position.y, msg.position.z])
+
             ori_r, ori_p, ori_y = t3d.euler.quat2euler(ori_q)
             # Extract the quaternion (a, b, c, w)
             self.get_logger().info(f"initial pos {pos}, ori {ori_q}")
+    
             delta_ori= [msg.orientation.x, msg.orientation.y, msg.orientation.z]
             ori_rpy = [ori_r, ori_p, ori_y] + delta_ori 
+
             orientation = t3d.euler.euler2quat(ori_rpy[0], ori_rpy[1], ori_rpy[2])
             position = np.array(pos) + delta_pos/self.xyz_scale 
-            panda.move_to_pose(positions=[position], orientations=[orientation], speed_factor = 0.01)
+
+            orientation = ori_q + [0.0, 0.0, 0.0, 0.1]
+
+            pos = np.array(position)
+            ori = np.array(orientation)
+
+            q = panda_py.ik(pos, ori)
+            print("Solved IK", q)
+
+            panda.move_to_joint_position(q, speed_factor = 0.01)
+            
+
             ori = panda.get_orientation()
             pos = panda.get_position() 
 
@@ -71,17 +87,7 @@ class PoseSubscriberNode(Node):
             
 
 
-
-
-    def quaternion_to_rotation_matrix(self, a, b, c, w):
-        # Calculate the 3x3 rotation matrix from quaternion (a, b, c, w)
-        # Quaternion to Rotation Matrix formula:
-        R = np.array([
-            [1 - 2 * (b**2 + c**2), 2 * (a * b - c * w), 2 * (a * c + b * w)],
-            [2 * (a * b + c * w), 1 - 2 * (a**2 + c**2), 2 * (b * c - a * w)],
-            [2 * (a * c - b * w), 2 * (b * c + a * w), 1 - 2 * (a**2 + b**2)]
-        ])
-        return R
+    
     
 
 

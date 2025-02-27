@@ -2,6 +2,10 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Pose
 
+import numpy as np
+
+
+
 class PosePublisherNode(Node):
     def __init__(self):
         super().__init__('pose_publisher_node')
@@ -17,15 +21,16 @@ class PosePublisherNode(Node):
         msg = Pose()
 
         # Set position (x, y, z)
-        msg.position.x = 0.4076
-        msg.position.y = 0.0001
-        msg.position.z = 0.4365
+
+        msg.position.x = 0.0
+        msg.position.y = 0.0
+        msg.position.z = 0.1
         
         # Set orientation as quaternion (a, b, c, w)
-        msg.orientation.x = 0.0
+        msg.orientation.x = 0.1
         msg.orientation.y = 0.0
         msg.orientation.z = 0.0
-        msg.orientation.w = 1.0  # This is the identity quaternion (no rotation)
+        msg.orientation.w = 0.0  # This is the identity quaternion (no rotation)
 
         # Publish the Pose message
         self.publisher.publish(msg)

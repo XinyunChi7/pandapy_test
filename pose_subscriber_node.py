@@ -4,6 +4,9 @@ from geometry_msgs.msg import Pose
 from std_msgs.msg import Float64MultiArray
 import numpy as np
 
+'''
+4 by 4 transformation matrix for IK solver
+'''
 
 class PoseSubscriberNode(Node):
     def __init__(self):
